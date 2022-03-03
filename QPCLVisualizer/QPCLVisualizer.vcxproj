@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2BFB28C3-50E3-4D4A-A462-E917847D646D}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>C:\Qt\6.2.1\msvc2019_64</QtInstall>
+    <QtModules>core;gui;widgets;concurrent</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+    <QtHeaderSearchPath>include</QtHeaderSearchPath>
+    <QtLibrarySearchPath>lib</QtLibrarySearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>C:\Qt\6.2.1\msvc2019_64</QtInstall>
+    <QtModules>core;gui;widgets;concurrent</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+    <QtHeaderSearchPath>include</QtHeaderSearchPath>
+    <QtLibrarySearchPath>lib</QtLibrarySearchPath>
+    <QMakeExtraArgs>
+    </QMakeExtraArgs>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(REALSENSE_ROOT)\include;$(PCL_ROOT)\include\pcl-1.12;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_76;$(PCL_ROOT)\3rdParty\Eigen\eigen3;$(PCL_ROOT)\3rdParty\FLANN\include;$(PCL_ROOT)\3rdParty\Qhull\include;$(PCL_ROOT)\3rdParty\VTK\include\vtk-9.0;C:\glfw-3.3.5.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(REALSENSE_ROOT)\lib\x64;$(PCL_ROOT)\lib;$(PCL_ROOT)\3rdParty\Boost\lib;$(PCL_ROOT)\3rdParty\FLANN\lib;$(PCL_ROOT)\3rdParty\Qhull\lib;$(PCL_ROOT)\3rdParty\VTK\lib;$(OPENNI2_LIB64);C:\glfw-3.3.5.bin.WIN64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(REALSENSE_ROOT)\lib\x64\realsense2.lib;$(PCL_ROOT)\lib\pcl_surface.lib;$(PCL_ROOT)\lib\pcl_keypoints.lib;$(PCL_ROOT)\lib\pcl_tracking.lib;$(PCL_ROOT)\lib\pcl_recognition.lib;$(PCL_ROOT)\lib\pcl_stereo.lib;$(PCL_ROOT)\lib\pcl_outofcore.lib;$(PCL_ROOT)\lib\pcl_people.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_system-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_filesystem-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_date_time-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_iostreams-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_serialization-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_regex-vc142-mt-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Qhull\lib\qhullstatic.lib;$(OPENNI2_LIB64)\OpenNI2.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkChartsCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInfovisCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOGeometry-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOLegacy-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOPLY-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingLOD-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkViewsContext2D-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkViewsCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingContextOpenGL2-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingOpenGL2-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkglew-9.0.lib;$(PCL_ROOT)\3rdParty\FLANN\lib\flann_cpp_s.lib;opengl32.lib;glu32.lib;C:\glfw-3.3.5.bin.WIN64\lib\glfw3.lib;$(PCL_ROOT)\lib\pcl_registration.lib;$(PCL_ROOT)\lib\pcl_segmentation.lib;$(PCL_ROOT)\lib\pcl_features.lib;$(PCL_ROOT)\lib\pcl_filters.lib;$(PCL_ROOT)\lib\pcl_sample_consensus.lib;$(PCL_ROOT)\lib\pcl_ml.lib;$(PCL_ROOT)\lib\pcl_visualization.lib;$(PCL_ROOT)\lib\pcl_search.lib;$(PCL_ROOT)\lib\pcl_kdtree.lib;$(PCL_ROOT)\lib\pcl_io.lib;$(PCL_ROOT)\lib\pcl_octree.lib;$(PCL_ROOT)\lib\pcl_common.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInteractionWidgets-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersModeling-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInteractionStyle-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersExtraction-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersStatistics-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingFourier-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersHybrid-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingGeneral-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingSources-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingHybrid-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOImage-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkDICOMParser-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkmetaio-9.0.lib;comctl32.lib;wsock32.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkpng-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtktiff-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkjpeg-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingAnnotation-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingColor-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingVolume-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOXML-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOXMLParser-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkdoubleconversion-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtklz4-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtklzma-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkexpat-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingContext2D-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingFreeType-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkfreetype-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkzlib-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonColor-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersGeometry-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersSources-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersGeneral-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonComputationalGeometry-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonExecutionModel-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonDataModel-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonTransforms-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonMisc-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonMath-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonSystem-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonCore-9.0.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtksys-9.0.lib;ws2_32.lib;Psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <QtRcc>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </QtRcc>
+    <QtUic>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(REALSENSE_ROOT)\include;$(PCL_ROOT)\include\pcl-1.12;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_76;$(PCL_ROOT)\3rdParty\Eigen\eigen3;$(PCL_ROOT)\3rdParty\FLANN\include;$(PCL_ROOT)\3rdParty\Qhull\include;$(PCL_ROOT)\3rdParty\VTK\include\vtk-9.0;C:\glfw-3.3.5.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(REALSENSE_ROOT)\lib\x64;$(PCL_ROOT)\lib;$(PCL_ROOT)\3rdParty\Boost\lib;$(PCL_ROOT)\3rdParty\FLANN\lib;$(PCL_ROOT)\3rdParty\Qhull\lib;$(PCL_ROOT)\3rdParty\VTK\lib;$(OPENNI2_LIB64);C:\glfw-3.3.5.bin.WIN64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(REALSENSE_ROOT)\lib\x64\realsense2.lib;$(PCL_ROOT)\lib\pcl_surfaced.lib;$(PCL_ROOT)\lib\pcl_keypointsd.lib;$(PCL_ROOT)\lib\pcl_trackingd.lib;$(PCL_ROOT)\lib\pcl_recognitiond.lib;$(PCL_ROOT)\lib\pcl_stereod.lib;$(PCL_ROOT)\lib\pcl_outofcored.lib;$(PCL_ROOT)\lib\pcl_peopled.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_system-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_filesystem-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_date_time-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_iostreams-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_serialization-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Boost\lib\libboost_regex-vc142-mt-gd-x64-1_76.lib;$(PCL_ROOT)\3rdParty\Qhull\lib\qhullstatic_d.lib;$(OPENNI2_LIB64)\OpenNI2.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkChartsCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInfovisCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOGeometry-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOLegacy-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOPLY-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingLOD-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkViewsContext2D-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkViewsCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingContextOpenGL2-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingOpenGL2-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkglew-9.0d.lib;$(PCL_ROOT)\3rdParty\FLANN\lib\flann_cpp_s.lib;C:\glfw-3.3.5.bin.WIN64\lib\glfw3.lib;$(PCL_ROOT)\lib\pcl_registrationd.lib;$(PCL_ROOT)\lib\pcl_segmentationd.lib;$(PCL_ROOT)\lib\pcl_featuresd.lib;$(PCL_ROOT)\lib\pcl_filtersd.lib;$(PCL_ROOT)\lib\pcl_sample_consensusd.lib;$(PCL_ROOT)\lib\pcl_mld.lib;$(PCL_ROOT)\lib\pcl_visualizationd.lib;$(PCL_ROOT)\lib\pcl_searchd.lib;$(PCL_ROOT)\lib\pcl_kdtreed.lib;$(PCL_ROOT)\lib\pcl_iod.lib;$(PCL_ROOT)\lib\pcl_octreed.lib;$(PCL_ROOT)\lib\pcl_commond.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInteractionWidgets-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersModeling-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkInteractionStyle-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersExtraction-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersStatistics-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingFourier-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersHybrid-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingGeneral-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingSources-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingHybrid-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOImage-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkDICOMParser-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkmetaio-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkpng-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtktiff-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkjpeg-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingAnnotation-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingColor-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingVolume-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOXML-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOXMLParser-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkIOCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkdoubleconversion-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtklz4-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtklzma-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkexpat-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkImagingCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingContext2D-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingFreeType-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkfreetype-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkzlib-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkRenderingCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonColor-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersGeometry-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersSources-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersGeneral-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonComputationalGeometry-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkFiltersCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonExecutionModel-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonDataModel-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonTransforms-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonMisc-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonMath-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonSystem-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtkCommonCore-9.0d.lib;$(PCL_ROOT)\3rdParty\VTK\lib\vtksys-9.0d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <QtRcc Include="QPCLVisualizer.qrc" />
+    <QtUic Include="QPCLVisualizer.ui" />
+    <QtMoc Include="QPCLVisualizer.h" />
+    <ClCompile Include="QPCLVisualizer.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
