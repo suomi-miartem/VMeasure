@@ -7,9 +7,10 @@ QPCLVisualizer::QPCLVisualizer(QWidget* parent)
 
 	cloud.reset(new PointCloudT);
 	passthroughCloud.reset(new PointCloudT);
+	euclidCLoud.reset(new PointCloudT);
 
 	QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(Visualize()));
-	QObject::connect(ui.testButton, &QPushButton::clicked, this, &QPCLVisualizer::euclidCluster);
+	//sQObject::connect(ui.testButton, &QPushButton::clicked, this, &QPCLVisualizer::euclidCluster);
 
 	QObject::connect(ui.hSliderR, &QSlider::sliderMoved, ui.lcdR, qOverload<int>(&QLCDNumber::display));
 	QObject::connect(ui.hSliderR, &QSlider::sliderReleased, this, &QPCLVisualizer::colourSliderReleased);
@@ -90,7 +91,6 @@ void QPCLVisualizer::Visualize()
 	//----------------------Visualization----------------------//
 	//---------------------------------------------------------//
 	viewer = InitVisualizer();
-	viewer->addPointCloud(passthroughCloud);
 
 	//Добавить облако
 	for (auto& point : *passthroughCloud)
@@ -100,9 +100,12 @@ void QPCLVisualizer::Visualize()
 		point.b = blue;
 	}
 
-	
-	if(!viewer->addPointCloud<pcl::PointXYZRGB>(passthroughCloud, "cloud"))
+	if(!viewer->addPointCloud<PointT>(passthroughCloud, "cloud"))
 		viewer->updatePointCloud(passthroughCloud,"cloud");
+
+	euclidCluster(passthroughCloud, euclidCLoud);
+
+	viewer->updatePointCloud(euclidCLoud, "cloud");
 
 	if (!viewer->wasStopped())
 		viewer->spinOnce();
@@ -161,7 +164,6 @@ void QPCLVisualizer::blueSliderValueChanged(int value)
 //}
 
 //SUPPORTING FUNCTIONS
-
 /// <summary>
 /// Инициализация визуализатора из простого облака точек.
 /// </summary>
@@ -182,10 +184,12 @@ pcl::visualization::PCLVisualizer::Ptr QPCLVisualizer::InitVisualizer()
 /// </summary>
 void QPCLVisualizer::passThrough(PointCloudT::Ptr src, PointCloudT::Ptr dst, float min, float max)
 {
+	//Фильтрация точек в неотрицательном диапазоне
 	pcl::PassThrough<PointT> pass = new pcl::PassThrough<PointT>;
 	pass.setInputCloud(src);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(min, max);
+	pass.setNegative(false);
 	pass.filter(*dst);
 
 	for (auto& point : *dst)
@@ -199,77 +203,35 @@ void QPCLVisualizer::passThrough(PointCloudT::Ptr src, PointCloudT::Ptr dst, flo
 /// <summary>
 /// Простая кластеризация по евклидову расстоянию между точками облака.
 /// </summary>
-void QPCLVisualizer::euclidCluster()
+void QPCLVisualizer::euclidCluster(PointCloudT::Ptr src, PointCloudT::Ptr dst)
 {
-	if (passthroughCloud->empty()) return;
+	if (src->empty()) return;
 
-	std::stringstream ss;
-
-	//настройка параметров кластеризатора и его запуск
+	//Настройка параметров кластеризатора и его запуск
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
-	tree->setInputCloud(passthroughCloud);
+	tree->setInputCloud(src);
 
 	std::vector<pcl::PointIndices> ecIndices;
 	pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
 
+	ec.setInputCloud(src);
 	ec.setClusterTolerance(0.01); // 1cm
 	ec.setMinClusterSize(10);
 	ec.setMaxClusterSize(25000);
 	ec.setSearchMethod(tree);
-	ec.setInputCloud(passthroughCloud);
 	ec.extract(ecIndices);
 
-	//Окраска кластеров
-	PointCloudT::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
-	QRandomGenerator rnd;
-	int idxRed = 0;
-	int idxGreen = 0;
-	int idxBlue = 0;
+	//Фильтрация наибольшего из отсеянных кластеров
+	pcl::PointIndices::Ptr max(new pcl::PointIndices());
 
-	pcl::PointIndices::Ptr max (new pcl::PointIndices ());
-	//max->indices = std::max_element(ecIndices.cbegin(), ecIndices.cend())->indices; //pcl::PointIndicesPtr(new pcl::PointIndices);
-
-	for (std::vector<pcl::PointIndices>::const_iterator it = ecIndices.begin(); it != ecIndices.end(); ++it) {
+	for (std::vector<pcl::PointIndices>::iterator it = ecIndices.begin(); it != ecIndices.end(); ++it) {
 		if (it->indices.size() > max->indices.size())
-			max->indices = it->indices;
+			*max = *it;
 	}
-
-	for (const auto& idx : max->indices)
-		cloud_cluster->push_back((*passthroughCloud)[idx]);
-
-	/*pcl::ExtractIndices<PointT> extract;
-	extract.setInputCloud(passthroughCloud);
+		
+	pcl::ExtractIndices<PointT> extract;
+	extract.setInputCloud(src);
 	extract.setIndices(max);
 	extract.setNegative(false);
-	extract.filter(*cloud_cluster);*/
-
-	//Наибольший кластер
-	
-
-	/*for (const auto& idx : max->indices) {
-		if (idx > passthroughCloud->size() || idx < 0) {
-			ss.clear();
-			ss << "Index " << idx << " is not valid. Size of the cloud is " << passthroughCloud->size();
-			QMessageBox::information(this, QString("Information"), QString::fromStdString(ss.str()));
-		}
-	}*/
-	
-	/*viewer->updatePointCloud(cloud_cluster, "cloud");
-	viewer->spinOnce();*/
-
-	
-	/*for (std::vector<pcl::PointIndices>::const_iterator it = ecIndices.begin(); it != ecIndices.end(); ++it) {
-		idxRed = rnd.bounded(0, 256);
-		idxGreen = rnd.bounded(0, 256);
-		idxBlue = rnd.bounded(0, 256);
-		
-		for (const auto& idx : it->indices) {
-			(*passthroughCloud)[idx].r = idxRed;
-			(*passthroughCloud)[idx].g = idxGreen;
-			(*passthroughCloud)[idx].b = idxBlue;
-		}
-
-		viewer->updatePointCloud(passthroughCloud, "cloud");
-		viewer->spinOnce();
-	}*/
+	extract.filter(*dst);
 }

@@ -36,7 +36,6 @@ public Q_SLOTS:
     void Visualize();
     void colourSliderReleased();
     void passthroughValueChanged();
-    void euclidCluster();
     void redSliderValueChanged(int value);
     void greenSliderValueChanged(int value);
     void blueSliderValueChanged(int value);
@@ -49,10 +48,13 @@ private:
     
     void passThrough(PointCloudT::Ptr src, PointCloudT::Ptr dst, float min, float max);
 
+    void euclidCluster(PointCloudT::Ptr src, PointCloudT::Ptr dst);
+
 protected:
     pcl::visualization::PCLVisualizer::Ptr viewer;
     PointCloudT::Ptr cloud;
     PointCloudT::Ptr passthroughCloud;
+    PointCloudT::Ptr euclidCLoud;
 
     unsigned int red = 255;
     unsigned int green = 255;
