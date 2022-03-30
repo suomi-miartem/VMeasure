@@ -4,7 +4,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QFuture>
 #include <QtCore/qmutex.h>
-//#include <QtCore/QRandomGenerator>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMessageBox>
@@ -18,12 +17,16 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/surface/convex_hull.h>
+#include <pcl/surface/gp3.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/voxel_grid.h>
 
-typedef pcl::PointXYZRGB PointT;
+typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+typedef pcl::NormalEstimation<PointT, pcl::Normal> NormalEstimationT;
+typedef pcl::PointCloud<pcl::Normal> NormalCloudT;
 
 class QPCLVisualizer : public QMainWindow
 {
@@ -49,12 +52,18 @@ private:
     void passThrough(PointCloudT::Ptr src, PointCloudT::Ptr dst, float min, float max);
 
     void euclidCluster(PointCloudT::Ptr src, PointCloudT::Ptr dst);
+    
+    void normalEstimation(PointCloudT::Ptr src, NormalCloudT::Ptr dst);
+
+    void getHull(PointCloudT::Ptr src, NormalCloudT::Ptr nSrc);
 
 protected:
     pcl::visualization::PCLVisualizer::Ptr viewer;
     PointCloudT::Ptr cloud;
     PointCloudT::Ptr passthroughCloud;
     PointCloudT::Ptr euclidCLoud;
+    NormalCloudT::Ptr normals;
+    pcl::PolygonMesh mesh;
 
     unsigned int red = 255;
     unsigned int green = 255;

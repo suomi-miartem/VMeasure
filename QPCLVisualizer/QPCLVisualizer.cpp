@@ -8,6 +8,7 @@ QPCLVisualizer::QPCLVisualizer(QWidget* parent)
 	cloud.reset(new PointCloudT);
 	passthroughCloud.reset(new PointCloudT);
 	euclidCLoud.reset(new PointCloudT);
+	normals.reset(new NormalCloudT);
 
 	QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(Visualize()));
 	//sQObject::connect(ui.testButton, &QPushButton::clicked, this, &QPCLVisualizer::euclidCluster);
@@ -32,87 +33,33 @@ void QPCLVisualizer::Visualize()
 	using namespace std::chrono_literals;
 #pragma region PCD load
 	pcl::PCDReader reader;
-	reader.read("test_pcd.pcd", *cloud);
 	if (reader.read("test_pcd.pcd", *cloud) == -1) return;
 
 	QMessageBox::information(this, "Information", "Pointcloud was succesfully loaded!");
 #pragma endregion
 
-	//Basic cloud generation
-#pragma region Point cloud generation
-	//---------------------------------------------------------//
-	//------------------Point cloud generation-----------------//
-	//---------------------------------------------------------//
-	pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-	// We're going to make an ellipse extruded along the z-axis. The colour for
-	// the XYZRGB cloud will gradually go from red to green to blue.
-	std::uint8_t r(255), g(15), b(15);
-	for (float z(-1.0); z <= 1.0; z += 0.05)
-	{
-		for (float angle(0.0); angle <= 360.0; angle += 5.0)
-		{
-			pcl::PointXYZ basic_point;
-			basic_point.x = 0.5 * std::cos(pcl::deg2rad(angle));
-			basic_point.y = sinf(pcl::deg2rad(angle));
-			basic_point.z = z;
-			basic_cloud_ptr->points.push_back(basic_point);
-
-			pcl::PointXYZRGB point;
-			point.x = basic_point.x;
-			point.y = basic_point.y;
-			point.z = basic_point.z;
-			std::uint32_t rgb = (static_cast<std::uint32_t>(r) << 16 |
-				static_cast<std::uint32_t>(g) << 8 | static_cast<std::uint32_t>(b));
-			point.rgb = *reinterpret_cast<float*>(&rgb);
-			point_cloud_ptr->points.push_back(point);
-		}
-		if (z < 0.0)
-		{
-			r -= 12;
-			g += 12;
-		}
-		else
-		{
-			g -= 12;
-			b += 12;
-		}
-	}
-	basic_cloud_ptr->width = basic_cloud_ptr->size();
-	basic_cloud_ptr->height = 1;
-	point_cloud_ptr->width = point_cloud_ptr->size();
-	point_cloud_ptr->height = 1;
-#pragma endregion
-
-	passThrough(cloud, passthroughCloud, float(ui.sbMin->value()), float(ui.sbMax->value()));
-
 #pragma region Visualization
 	//---------------------------------------------------------//
 	//----------------------Visualization----------------------//
 	//---------------------------------------------------------//
+	
+	//Инициализация визуализатора
 	viewer = InitVisualizer();
 
-	//Добавить облако
-	for (auto& point : *passthroughCloud)
-	{
-		point.r = red;
-		point.g = green;
-		point.b = blue;
-	}
+	passThrough(cloud, passthroughCloud, float(ui.sbMin->value()), float(ui.sbMax->value()));
 
-	if(!viewer->addPointCloud<PointT>(passthroughCloud, "cloud"))
-		viewer->updatePointCloud(passthroughCloud,"cloud");
-
+	//Евклидова кластеризация с извлечением наибольшего кластера
 	euclidCluster(passthroughCloud, euclidCLoud);
 
-	viewer->updatePointCloud(euclidCLoud, "cloud");
+	//Вычисление нормалей
+	normalEstimation(euclidCLoud, normals);
 
+	getHull(euclidCLoud, normals);
+
+	viewer->addPolygonMesh(mesh, "polygon");
+	
 	if (!viewer->wasStopped())
 		viewer->spinOnce();
-
-	std::stringstream ss;
-	ss << "Cloud width: " << cloud->width << ", height: " << cloud->height;
-	ui.testLine->setText(QString::fromStdString(ss.str()));
 #pragma endregion
 }
 void QPCLVisualizer::colourSliderReleased()
@@ -123,12 +70,12 @@ void QPCLVisualizer::colourSliderReleased()
 
 	if (passthroughCloud->empty()) return;
 
-	for (auto& point : *passthroughCloud)
+	/*for (auto& point : *passthroughCloud)
 	{
 		point.r = red;
 		point.g = green;
 		point.b = blue;
-	}
+	}*/
 
 	viewer->updatePointCloud(passthroughCloud, "cloud");
 	viewer->spinOnce();
@@ -158,24 +105,18 @@ void QPCLVisualizer::blueSliderValueChanged(int value)
 {
 	blue = value;
 }
-//void QPCLVisualizer::updateLabel()
-//{
-//	ui.nLabel->setText(QString::number(float(ui.hSliderN->value()) / 1000.0));
-//}
 
-//SUPPORTING FUNCTIONS
+//SUPPORT FUNCTIONS
 /// <summary>
 /// Инициализация визуализатора из простого облака точек.
 /// </summary>
 pcl::visualization::PCLVisualizer::Ptr QPCLVisualizer::InitVisualizer()
 {
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
-
 	viewer->setBackgroundColor(0, 0, 0);
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
 	viewer->addCoordinateSystem(0.5);
 	viewer->initCameraParameters();
-	
 	return (viewer);
 }
 
@@ -188,16 +129,16 @@ void QPCLVisualizer::passThrough(PointCloudT::Ptr src, PointCloudT::Ptr dst, flo
 	pcl::PassThrough<PointT> pass = new pcl::PassThrough<PointT>;
 	pass.setInputCloud(src);
 	pass.setFilterFieldName("z");
-	pass.setFilterLimits(min, max);
+	pass.setFilterLimits(0.001f, max);
 	pass.setNegative(false);
 	pass.filter(*dst);
 
-	for (auto& point : *dst)
+	/*for (auto& point : *dst)
 	{
 		point.r = red;
 		point.g = green;
 		point.b = blue;
-	}
+	}*/
 }
 
 /// <summary>
@@ -208,11 +149,11 @@ void QPCLVisualizer::euclidCluster(PointCloudT::Ptr src, PointCloudT::Ptr dst)
 	if (src->empty()) return;
 
 	//Настройка параметров кластеризатора и его запуск
-	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
+	pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
 	tree->setInputCloud(src);
 
 	std::vector<pcl::PointIndices> ecIndices;
-	pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
+	pcl::EuclideanClusterExtraction<PointT> ec;
 
 	ec.setInputCloud(src);
 	ec.setClusterTolerance(0.01); // 1cm
@@ -234,4 +175,48 @@ void QPCLVisualizer::euclidCluster(PointCloudT::Ptr src, PointCloudT::Ptr dst)
 	extract.setIndices(max);
 	extract.setNegative(false);
 	extract.filter(*dst);
+}
+
+void QPCLVisualizer::normalEstimation(PointCloudT::Ptr src, NormalCloudT::Ptr dst)
+{
+	NormalEstimationT ne;
+	ne.setInputCloud(src);
+
+	pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>());
+	ne.setSearchMethod(tree);
+
+	//ne.setRadiusSearch(0.03);
+
+	ne.setKSearch(8);
+
+	ne.compute(*dst);
+}
+
+void QPCLVisualizer::getHull(PointCloudT::Ptr src, NormalCloudT::Ptr nSrc)
+{
+	pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals(new pcl::PointCloud<pcl::PointNormal>);
+	pcl::concatenateFields(*src, *nSrc, *cloud_with_normals);
+	pcl::search::KdTree<pcl::PointNormal>::Ptr tree(new pcl::search::KdTree<pcl::PointNormal>);
+	tree->setInputCloud(cloud_with_normals);
+
+	pcl::GreedyProjectionTriangulation<pcl::PointNormal> gp3;
+
+	gp3.setSearchRadius(0.03);
+	gp3.setMu(2.5);
+	gp3.setMaximumNearestNeighbors(100);
+	gp3.setMaximumSurfaceAngle(M_PI / 4); // 45 degrees
+	gp3.setMinimumAngle(M_PI / 18); // 10 degrees
+	gp3.setMaximumAngle(2 * M_PI / 3); // 120 degrees
+	gp3.setNormalConsistency(false);
+
+	gp3.setInputCloud(cloud_with_normals);
+	gp3.setSearchMethod(tree);
+
+	gp3.initCompute();
+	gp3.reconstruct(mesh);
+	/*pcl::ConvexHull<PointT> chull;
+
+	chull.setDimension(3);
+	chull.setInputCloud(euclidCLoud);
+	chull.setSearchMethod(tree);*/
 }
